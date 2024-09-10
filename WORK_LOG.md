@@ -1,9 +1,9 @@
 Name: YOUR NAME HERE
 
-| Date    |  Time  |                                     Update |
-|:--------|:------:|-------------------------------------------:|
-| April 5 | 9-10pm | I tried to write abstract, efficient code. |
-|         |        |                                            |
+| Date  |     Time      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Update |
+|:------|:-------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Sep 9 | 6:45pm-7:15pm | I am thinking about this using what we learned when we talked about game theory a little bit in ATCS last year. I am trying to approach this recursively and using a backtracking approach of setting a city as a hospital, then backtracking and removing the hospital, instead choosing to set it as a highway. Right now, I have an array of booleans for each city, setting it to true if it is a hospital and false otherwise, but I don't know right now how I will emulate a highway being built (besides adding to total cost). |
+| Sep 9 |  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 
 To add a new row to the table, click into a cell and then hit shift-enter.
