@@ -19,12 +19,11 @@ public class HighwaysAndHospitals {
      *  hospital access for all citizens in Menlo County.
      */
     public static long cost(int n, int hospitalCost, int highwayCost, int cities[][]) {
-        int currentCity = 0;
+        int currentCity = 1;
         // If hospital cost if less than or equal to hospital cost, return cost of placing hospital at every city
         if (hospitalCost <= highwayCost) {
             return (long) hospitalCost * n;
         }
-        Queue<Integer> bfsQueue = new LinkedList<Integer>();
         ArrayList[] cityConnections = new ArrayList[n + 1];
         for (int i = 1; i < n + 1; i++) {
             cityConnections[i] = new ArrayList<Integer>();
@@ -34,21 +33,34 @@ public class HighwaysAndHospitals {
             cityConnections[connection[1]].add(connection[0]);
 
         }
-        int totalCost = 0;
+        long totalCost = 0;
         boolean[] citiesExplored = new boolean[n + 1];
-        while (currentCity != n) {
+        while (true) {
             // Add cost for hospital being built at current city
             totalCost += hospitalCost;
-
+            totalCost += subgraphBFS(n, 0, highwayCost, currentCity, cityConnections, citiesExplored);
+            // Adjust current city to the next unsearched city
+            boolean citiesUnsearched = false;
+            for (int i = 1; i < n + 1; i++) {
+                if (!citiesExplored[i]) {
+                    currentCity = i;
+                }
+                citiesUnsearched= true;
+                break;
+            }
+            if (!citiesUnsearched) {
+                break;
+            }
         }
         return totalCost;
     }
-
-    public static long cityBFS(int n, int totalCost, int highwayCost, int cities[][], int currentCity, ArrayList cityConnections[], Queue<Integer> bfsQueue, boolean[] citiesExplored) {
-
+    public static long subgraphBFS(int n, long subgraphCost, int highwayCost, int currentCity, ArrayList cityConnections[], boolean[] citiesExplored) {
+        Queue<Integer> bfsQueue = new LinkedList<Integer>();
         while (!bfsQueue.isEmpty()) {
             // Remove current city from list of cities to be searched
             bfsQueue.remove();
+            // Add the cost of building the next highway
+            subgraphCost += highwayCost;
             ArrayList<Integer> connections = cityConnections[currentCity];
             int numConnections = connections.size();
             for (int i = 0; i < numConnections; i++) {
@@ -59,5 +71,6 @@ public class HighwaysAndHospitals {
             }
             currentCity = bfsQueue.peek();
         }
+        return subgraphCost;
     }
 }
