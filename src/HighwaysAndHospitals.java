@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 
 /**
  * Highways & Hospitals
@@ -17,31 +19,45 @@ public class HighwaysAndHospitals {
      *  hospital access for all citizens in Menlo County.
      */
     public static long cost(int n, int hospitalCost, int highwayCost, int cities[][]) {
+        int currentCity = 0;
+        // If hospital cost if less than or equal to hospital cost, return cost of placing hospital at every city
+        if (hospitalCost <= highwayCost) {
+            return (long) hospitalCost * n;
+        }
+        Queue<Integer> bfsQueue = new LinkedList<Integer>();
         ArrayList[] cityConnections = new ArrayList[n + 1];
         for (int i = 1; i < n + 1; i++) {
             cityConnections[i] = new ArrayList<Integer>();
         }
         for (int[] connection : cities) {
             cityConnections[connection[0]].add(connection[1]);
+            cityConnections[connection[1]].add(connection[0]);
+
         }
+        int totalCost = 0;
+        boolean[] citiesExplored = new boolean[n + 1];
+        while (currentCity != n) {
+            // Add cost for hospital being built at current city
+            totalCost += hospitalCost;
 
-
-        return 0;
+        }
+        return totalCost;
     }
-    public static int tryCity(int n, int hospitalCost, int highwayCost, int cities[][], boolean hospitals[], int totalCost, int currentCity, ArrayList[] cityConnections) {
-        if (currentCity > n) {
-            return 0;
-        }
-        hospitals[currentCity] = true;
-        return tryCity(n, hospitalCost, highwayCost, cities[][], hospitals, totalCost + hospitalCost, currentCity, cityConnections);
-        hospitals[currentCity] = false;
-        int numConnections = cityConnections[currentCity].size();
-        for (int i = 0; i < numConnections; i++) {
-            // Somehow set the highway to true
-            // Call recursive method with new highway added and cost changed
-            return tryCity(n, hospitalCost, highwayCost, cities[][],
-            hospitals, totalCost + highwayCost, currentCity, cityConnections);
 
+    public static long cityBFS(int n, int totalCost, int highwayCost, int cities[][], int currentCity, ArrayList cityConnections[], Queue<Integer> bfsQueue, boolean[] citiesExplored) {
+
+        while (!bfsQueue.isEmpty()) {
+            // Remove current city from list of cities to be searched
+            bfsQueue.remove();
+            ArrayList<Integer> connections = cityConnections[currentCity];
+            int numConnections = connections.size();
+            for (int i = 0; i < numConnections; i++) {
+                int city = connections.get(i);
+                if (citiesExplored[city] == false) {
+                    bfsQueue.add(city);
+                }
+            }
+            currentCity = bfsQueue.peek();
         }
     }
 }
