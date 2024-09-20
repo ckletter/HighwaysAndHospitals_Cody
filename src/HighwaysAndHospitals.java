@@ -18,82 +18,67 @@ public class HighwaysAndHospitals {
      * TODO: Complete this function, cost(), to return the minimum cost to provide
      *  hospital access for all citizens in Menlo County.
      */
-    public static long cost(int n, int hospitalCost, int highwayCost, int cities[][]) {
+    public static long cost(int n, int hospitalCost, int highwayCost, int[][] cities) {
         // If hospital cost if less than or equal to hospital cost, return cost of placing hospital at every city
         if (hospitalCost <= highwayCost) {
             return (long) hospitalCost * n;
         }
-
-        int currentCity = 1;
-        // Create array of array lists for each connection that a city has
-        ArrayList[] cityConnections = new ArrayList[n + 1];
-        for (int i = 1; i < n + 1; i++) {
-            cityConnections[i] = new ArrayList<Integer>();
+        // Map for roots of each city in union find algorithm
+        int[] roots = new int[n + 1];
+        // Perform union find for each new edge
+        for (int i = 0; i < cities.length; i++) {
+            fastFind(cities[i][0], cities[i][1], roots);
         }
-        // For each connection, add to both cities the other city as a connection in its arraylist
-        for (int[] connection : cities) {
-            cityConnections[connection[0]].add(connection[1]);
-            cityConnections[connection[1]].add(connection[0]);
-
-        }
-        long totalCost = 0;
-        // array of booleans to keep track of each city being explored or not
-        boolean[] citiesExplored = new boolean[n + 1];
-        // Loop until all cities have been explored
-        while (true) {
-            // Add cost for hospital being built at current city and mark as explored
-            totalCost += hospitalCost;
-            citiesExplored[currentCity] = true;
-            // Calculate the total cost of all highways built at the subgraph of the current city
-            totalCost += subgraphBFS(0, highwayCost, currentCity, cityConnections, citiesExplored);
-            // Adjust current city to the next unsearched city
-            boolean citiesUnsearched = false;
-            for (int i = 2; i < n + 1; i++) {
-                if (!citiesExplored[i]) {
-                    currentCity = i;
-                    citiesUnsearched= true;
-                    break;
-                }
-            }
-            if (!citiesUnsearched) {
-                break;
+        // Count all of the disconnected subgraphs by counting negative or zero values in map
+        int subgraphCount = 0;
+        for (int i = 1; i < roots.length; i++) {
+            if (roots[i] <= 0) {
+                subgraphCount+= 1;
             }
         }
-        return totalCost;
+        // Calculate total cost and return
+        return (long) subgraphCount * hospitalCost + (long) (n - subgraphCount) * highwayCost;
     }
+    public static void fastFind(int cityOne, int cityTwo, int[] roots) {
+        // Create copy of cityOne and cityTwo
+        int i = cityOne;
+        int j = cityTwo;
+        int temp = 0;
+        // Loop until root of city one is found
+        while (roots[i] > 0) {
+            i = roots[i];
+        }
+        // Loop until root of city two is found
+        while (roots[j] > 0) {
+            j = roots[j];
+        }
+        // Path compression - loop through each city that was seen and map it back to the component's root
+        while (roots[cityOne] > 0) {
+            temp = cityOne;
+            cityOne = roots[cityOne];
+            // Set the root of current city to the root of subgraph
+            roots[temp] = i;
+        }
+        // Path compression - loop through each city that was seen and map it back to the component's root
+        while (roots[cityTwo] > 0) {
+            temp = cityTwo;
+            cityTwo = roots[cityTwo];
+            // Set the root of current city to the root of subgraph
+            roots[temp] = j;
 
-    /**
-     * Calculates the total cost of all highways being built at the subgraph of the current city being passed in
-     * Performs BFS to search through each city in the subgraph until all cities have been explored
-     */
-    public static long subgraphBFS(long subgraphCost, int highwayCost, int currentCity, ArrayList cityConnections[], boolean[] citiesExplored) {
-        // Creates a queue of adjacent cities to be added in BFS algorithm
-        Queue<Integer> bfsQueue = new LinkedList<Integer>();
-        bfsQueue.add(currentCity);
-        // Keep looping until all cities in the subgraph have been explored
-        while (!bfsQueue.isEmpty()) {
-            // Remove current city from list of cities to be searched
-            bfsQueue.remove();
-            // Add the cost of building the next highway
-            subgraphCost += highwayCost;
-            ArrayList<Integer> connections = cityConnections[currentCity];
-            // Loop through each of the current city's neighbors
-            int numConnections = connections.size();
-            for (int i = 0; i < numConnections; i++) {
-                int city = connections.get(i);
-                // If the city has not yet been explored, adds it to cities to be searched and marks it as explored
-                if (citiesExplored[city] == false) {
-                    bfsQueue.add(city);
-                    citiesExplored[city] = true;
-                }
+        }
+        // Weight balancing - make city with more cities the root of the subgraph with less cities
+        if (i != j) {
+            // If the second subgraph is smaller than the first subgraph, make first subgraph the root of the second subgraph
+            if (roots[j] < roots[i]) {
+                roots[j] = roots[j] + roots[i] - 1;
+                roots[i] = j;
             }
-            // If there are still cities left to be searched, sets current city to next city to be searched
-            if (bfsQueue.peek() != null) {
-                currentCity = bfsQueue.peek();
+            // If the first subgraph is smaller than the second subgraph, make second subgraph the root of the first subgraph
+            else {
+                roots[i] = roots[i] + roots[j] - 1;
+                roots[j] = i;
             }
         }
-        // Subtract the cost of the first highway being built (there are one less highways than cities in the subgraph)
-        // Return the final cost of the subgraph
-        return subgraphCost - highwayCost;
     }
 }
